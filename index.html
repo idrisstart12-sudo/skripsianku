@@ -1,0 +1,612 @@
+PROGRAM HTML
+```projek by : muhammad idris padila```
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Solar Monitoring and cleaning</title>
+
+  <!-- MQTT -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+  <!-- Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+
+    body{
+      margin:0;
+      font-family:'Segoe UI',sans-serif;
+      background:#0f172a;
+      color:white;
+      text-align:center;
+    }
+
+    h1{
+      padding:15px;
+    }
+
+    /* LOGIN */
+    #loginBox{
+
+      width:320px;
+
+      margin:100px auto;
+
+      background:#1e293b;
+
+      padding:30px;
+
+      border-radius:15px;
+
+      box-shadow:0 0 15px rgba(0,0,0,0.4);
+    }
+
+    input{
+
+      width:90%;
+
+      padding:12px;
+
+      margin:10px 0;
+
+      border:none;
+
+      border-radius:10px;
+
+      font-size:16px;
+    }
+
+    .loginBtn{
+
+      background:#22c55e;
+
+      color:white;
+
+      border:none;
+
+      padding:12px 25px;
+
+      border-radius:10px;
+
+      cursor:pointer;
+
+      font-size:16px;
+
+      font-weight:bold;
+    }
+
+    .container{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+  padding:15px;
+}
+    .card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:15px;
+  width:220px;
+  max-width:90%;
+  box-shadow:0 0 10px rgba(0,0,0,0.3);
+}
+
+    .value{
+
+      font-size:28px;
+
+      font-weight:bold;
+    }
+
+    .good{
+      color:#22c55e;
+    }
+
+    .warning{
+      color:#facc15;
+    }
+
+    .danger{
+      color:#ef4444;
+    }
+
+    button{
+
+      padding:12px 20px;
+
+      border:none;
+
+      border-radius:10px;
+
+      margin:10px;
+
+      font-size:18px;
+
+      cursor:pointer;
+
+      font-weight:bold;
+    }
+
+    .onBtn{
+
+      background:#22c55e;
+
+      color:white;
+    }
+
+    .offBtn{
+
+      background:#ef4444;
+
+      color:white;
+    }
+
+    canvas{
+
+      background:#1e293b;
+
+      border-radius:15px;
+
+      padding:10px;
+
+      max-width:95%;
+
+      margin:20px;
+    }
+
+    #dashboard{
+      display:none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<!-- ===================================================== -->
+<!-- LOGIN -->
+<!-- ===================================================== -->
+
+<div id="loginBox">
+<!-- LOGO LOGIN -->
+  <img src="uniba.png"
+       width="200"
+       style="margin-bottom:20px;">
+  <h2>LOGIN</h2>
+
+  <input type="text"
+         id="username"
+         placeholder="Username">
+
+  <input type="password"
+         id="password"
+         placeholder="Password">
+
+  <br>
+
+  <button class="loginBtn"
+          onclick="login()">
+
+          LOGIN
+
+  </button>
+
+  <p id="loginStatus"></p>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- DASHBOARD -->
+<!-- ===================================================== -->
+
+<div id="dashboard">
+<!-- HEADER IMAGE -->
+<img src="gambar uniba.png"
+     width="100%"
+     height="300"
+     style="
+     object-fit:cover;
+     border-bottom:4px solid #22c55e;
+     ">
+
+
+<h1> Solar panel Monitoring and cleaning</h1>
+<div style="
+font-size:18px;
+margin-top:-10px;
+margin-bottom:20px;
+color:#22c55e;
+font-weight:bold;
+">
+Teknik Elektro Angkatan 2022
+</div>
+<div class="container">
+
+  <!-- VOLTAGE -->
+  <div class="card">
+
+    <h3>Voltage</h3>
+
+    <div id="v"
+         class="value">
+
+         0.0 V
+
+    </div>
+
+  </div>
+
+  <!-- POMPA -->
+  <div class="card">
+
+    <h3>POMPA</h3>
+
+    <div id="pump"
+         class="value">
+
+         OFF
+
+    </div>
+
+  </div>
+
+  <!-- RTC -->
+  <div class="card">
+
+    <h3>WAKTU</h3>
+
+    <div id="rtc"
+         class="value good">
+
+         00:00
+
+    </div>
+
+  </div>
+<!-- TANGGAL -->
+<div class="card">
+
+  <h3>Hari & Tanggal</h3>
+
+  <div id="tanggal"
+       class="value good"
+       style="font-size:18px;">
+
+       Senin<br>
+       01/06/2026
+
+  </div>
+
+</div>
+
+<!-- KOTA -->
+<div class="card">
+
+  <h3>Kota</h3>
+
+  <div id="kota"
+       class="value good"
+       style="font-size:22px;">
+
+       Banjarmasin
+
+  </div>
+
+</div>
+  <!-- SYSTEM -->
+  <div class="card">
+
+    <h3>System Status</h3>
+
+    <div id="system"
+         class="value good">
+
+         ACTIVE
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- BUTTON -->
+<!-- ===================================================== -->
+
+<div>
+
+  <button class="onBtn"
+          onclick="relayON()">
+
+          POMPA ON
+
+  </button>
+
+  <button class="offBtn"
+          onclick="relayOFF()">
+
+          POMPA OFF
+
+  </button>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- CHART -->
+<!-- ===================================================== -->
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<script>
+
+  // =====================================================
+  // LOGIN
+  // =====================================================
+
+  function login(){
+
+    let user =
+    document.getElementById("username").value;
+
+    let pass =
+    document.getElementById("password").value;
+
+    // USERNAME & PASSWORD
+    if(user == "admin" &&
+       pass == "12345"){
+
+      document.getElementById("loginBox")
+      .style.display = "none";
+
+      document.getElementById("dashboard")
+      .style.display = "block";
+
+    }else{
+
+      document.getElementById("loginStatus")
+      .innerHTML =
+      "Username / Password Salah";
+
+      document.getElementById("loginStatus")
+      .style.color = "red";
+    }
+  }
+
+  // =====================================================
+  // MQTT
+  // =====================================================
+
+  const client = mqtt.connect(
+
+    "wss://d6d7061ef7b7456bbb33ee1036c34ddb.s1.eu.hivemq.cloud:8884/mqtt",
+
+    {
+      username:"esp32Akses",
+      password:"Arduino34567"
+    }
+  );
+
+  // =====================================================
+  // CHART
+  // =====================================================
+
+  const ctx =
+  document.getElementById("chart")
+  .getContext("2d");
+
+  const chart =
+  new Chart(ctx, {
+
+    type:"line",
+
+    data:{
+
+      labels:[],
+
+      datasets:[{
+
+        label:"Voltage (V)",
+
+        data:[],
+
+        borderColor:"#22c55e",
+
+        borderWidth:2,
+
+        tension:0.3,
+
+        fill:false
+      }]
+    },
+
+    options:{
+
+      responsive:true,
+
+      animation:false,
+
+      scales:{
+
+        y:{
+          beginAtZero:true
+        }
+      }
+    }
+  });
+
+  // =====================================================
+  // MQTT CONNECT
+  // =====================================================
+
+  client.on("connect",()=>{
+
+    console.log("MQTT Connected ✅");
+
+    client.subscribe("pzem/data");
+  });
+
+  // =====================================================
+  // MQTT MESSAGE
+  // =====================================================
+
+  client.on("message",(topic,message)=>{
+
+    let data =
+    JSON.parse(message.toString());
+
+    console.log(data);
+
+    // RTC
+    document.getElementById("rtc")
+    .innerText = data.time;
+// HARI & TANGGAL
+document.getElementById("tanggal")
+.innerHTML =
+data.day + "<br>" +
+data.date;
+
+// KOTA
+document.getElementById("kota")
+.innerText =
+data.city;
+
+    // VOLTAGE
+    updateVoltage(data.voltage);
+
+    // =====================================================
+    // RELAY
+    // =====================================================
+
+    let pump =
+    document.getElementById("pump");
+
+    if(data.relay == "ON"){
+
+      pump.innerText = "ON";
+
+      pump.className =
+      "value danger";
+
+    }else{
+
+      pump.innerText = "OFF";
+
+      pump.className =
+      "value good";
+    }
+
+    // =====================================================
+    // SYSTEM STATUS
+    // =====================================================
+
+    let system =
+    document.getElementById("system");
+
+    let rtcHour =
+    parseInt(data.time.split(":")[0]);
+
+    if(rtcHour >= 7 &&
+       rtcHour < 17){
+
+      system.innerText =
+      "ACTIVE";
+
+      system.className =
+      "value good";
+
+    }else{
+
+      system.innerText =
+      "OFF";
+
+      system.className =
+      "value danger";
+    }
+
+    // =====================================================
+    // CHART
+    // =====================================================
+
+    chart.data.labels.push(
+      data.time
+    );
+
+    chart.data.datasets[0]
+    .data.push(
+      data.voltage
+    );
+
+    // LIMIT DATA
+    if(chart.data.labels.length > 20){
+
+      chart.data.labels.shift();
+
+      chart.data.datasets[0]
+      .data.shift();
+    }
+
+    chart.update();
+  });
+
+  // =====================================================
+  // VOLTAGE DISPLAY
+  // =====================================================
+
+  function updateVoltage(value){
+
+    let el =
+    document.getElementById("v");
+
+    el.innerText =
+    value.toFixed(2) + " V";
+
+    if(value < 12){
+
+      el.className =
+      "value warning";
+
+    }else{
+
+      el.className =
+      "value good";
+    }
+  }
+
+  // =====================================================
+  // RELAY ON
+  // =====================================================
+
+  function relayON(){
+
+    client.publish(
+      "relay/control",
+      "ON"
+    );
+
+    console.log("Relay ON");
+  }
+
+  // =====================================================
+  // RELAY OFF
+  // =====================================================
+
+  function relayOFF(){
+
+    client.publish(
+      "relay/control",
+      "OFF"
+    );
+
+    console.log("Relay OFF");
+  }
+
+</script>
+
+</body>
+</html>
+```teknik elektro angkatan 2022```
